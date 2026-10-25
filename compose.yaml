@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: sdu
+      POSTGRES_USER: sdu
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Define DATABASE_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sdu -d sdu"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  sdu-app:
+    container_name: SDU-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/sdu
+      DATABASE_USERNAME: sdu
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Define DATABASE_PASSWORD}
+      SDU_ADMIN_USERNAME: ${SDU_ADMIN_USERNAME:?Define SDU_ADMIN_USERNAME}
+      SDU_ADMIN_PASSWORD: ${SDU_ADMIN_PASSWORD:?Define SDU_ADMIN_PASSWORD}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
