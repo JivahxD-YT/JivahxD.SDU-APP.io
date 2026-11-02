@@ -33,3 +33,4 @@ app:
   telegram:
     bot-token: ${TELEGRAM_BOT_TOKEN:}
     poll-interval: ${TELEGRAM_POLL_INTERVAL:30000}
+    poll-initial-delay: ${TELEGRAM_POLL_INITIAL_DELAY:0}

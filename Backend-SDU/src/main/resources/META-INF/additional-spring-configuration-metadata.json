@@ -19,6 +19,11 @@
       "name": "app.telegram.poll-interval",
       "type": "java.lang.Long",
       "description": "Intervalo de consulta de Telegram en milisegundos."
+    },
+    {
+      "name": "app.telegram.poll-initial-delay",
+      "type": "java.lang.Long",
+      "description": "Retraso inicial antes de la primera sincronización de Telegram en milisegundos."
     }
   ]
 }

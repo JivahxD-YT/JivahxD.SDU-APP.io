@@ -32,7 +32,9 @@ public class TelegramService {
         this.botToken = botToken;
     }
 
-    @Scheduled(fixedDelayString = "${app.telegram.poll-interval:30000}")
+    @Scheduled(
+            initialDelayString = "${app.telegram.poll-initial-delay:0}",
+            fixedDelayString = "${app.telegram.poll-interval:30000}")
     @Transactional
     public void synchronizeContacts() {
         if (botToken.isBlank()) return;
@@ -46,14 +48,18 @@ public class TelegramService {
                     .retrieve()
                     .body(JsonNode.class);
 
-            if (response == null || !response.path("ok").asBoolean()) {
+            if (response == null || !response.path("ok").asBoolean(false)) {
                 LOGGER.warn("Telegram no devolvió una respuesta válida al sincronizar usuarios.");
                 return;
             }
 
             long nextOffset = state.getNextUpdateOffset();
+            int synchronizedContacts = 0;
             for (JsonNode update : response.path("result")) {
                 JsonNode message = update.path("message");
+                if (message.isMissingNode()) {
+                    message = update.path("edited_message");
+                }
                 JsonNode from = message.path("from");
                 JsonNode chat = message.path("chat");
                 String username = from.path("username").asString("");
@@ -62,12 +68,20 @@ public class TelegramService {
                     String displayName = (from.path("first_name").asString("") + " "
                             + from.path("last_name").asString("")).trim();
                     saveContact(chatId, username, displayName);
+                    synchronizedContacts++;
                 }
-                nextOffset = Math.max(nextOffset, update.path("update_id").asLong(-1) + 1);
+                nextOffset = Math.max(nextOffset, update.path("update_id").asLong(-1L) + 1);
             }
             state.setNextUpdateOffset(nextOffset);
+            syncStateRepository.save(state);
+            if (synchronizedContacts > 0) {
+                LOGGER.info("Telegram sincronizó {} contacto(s).", synchronizedContacts);
+            } else if (!response.path("result").isEmpty()) {
+                LOGGER.debug("Telegram recibió actualizaciones sin datos de contacto.");
+            }
         } catch (RestClientException exception) {
-            LOGGER.warn("No se pudo sincronizar Telegram; revisa la configuración y conectividad del bot.");
+            LOGGER.warn("No se pudo sincronizar Telegram; revisa la configuración y conectividad del bot: {}",
+                    exception.getMessage());
         }
     }
 
