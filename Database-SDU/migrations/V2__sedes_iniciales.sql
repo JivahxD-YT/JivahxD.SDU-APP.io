@@ -5,7 +5,9 @@ INSERT INTO sedes (id_sede, nombre_sede) VALUES
     (3, 'SEDE 3'),
     (4, 'EUREKA'),
     (23, 'LA PERLA'),
-    (24, 'ILE')
+    (24, 'ILE'),
+    (25, 'SEDE Campestre'),
+    (31, 'Sede Cúcuta')
 ON CONFLICT (nombre_sede) DO NOTHING;
 
 SELECT setval(pg_get_serial_sequence('sedes', 'id_sede'), (SELECT MAX(id_sede) FROM sedes));

@@ -1,92 +1,179 @@
-# Documentación técnica del código
+# Documentacion tecnica del proyecto
 
-## Arquitectura
+## Que hace el sistema
 
-El proyecto está dividido en tres módulos desplegados por separado: Angular sirve el frontend, Spring Boot expone la API REST y PostgreSQL almacena sedes y denuncias.
+El Sistema de Denuncias Universitario permite registrar casos, elegir una sede, adjuntar enlaces opcionales de evidencia, consultar una denuncia mediante un codigo unico y administrar los casos desde un panel protegido.
 
-Rutas principales:
+La plataforma esta organizada en tres modulos independientes:
 
-- Base de datos: `Documents\Sistema de Denuncias Universitario\Database-SDU`
+- **Frontend:** interfaz web hecha con Angular.
+- **Backend:** API REST hecha con Spring Boot.
+- **Base de datos:** PostgreSQL.
+- **Docker Compose:** inicia los tres modulos y conecta sus puertos.
+
+## Rutas principales
+
+- Proyecto: `Documents\Sistema de Denuncias Universitario`
 - Backend: `Documents\Sistema de Denuncias Universitario\Backend-SDU`
 - Frontend: `Documents\Sistema de Denuncias Universitario\Frontend-SDU`
-- Orquestación Docker: `Documents\Sistema de Denuncias Universitario\compose.yaml`
+- Base de datos: `Documents\Sistema de Denuncias Universitario\Database-SDU`
+- Orquestacion: `Documents\Sistema de Denuncias Universitario\compose.yaml`
+
+## Arquitectura general
 
 ```text
-Navegador Angular
-    -> ComplaintApiService
-    -> Controladores REST (/api/public y /api/admin)
-    -> ComplaintService
-    -> Repositorios Spring Data/JPA
-    -> PostgreSQL
+Usuario
+  -> Angular
+  -> API de Spring Boot
+  -> PostgreSQL
 
-ComplaintService -> TelegramService -> API de Telegram
+Spring Boot
+  -> Telegram
+  -> Mensajes de registro y cambio de estado
 ```
+
+El frontend usa `/api` para comunicarse con el backend. Nginx recibe las solicitudes del navegador y las envia al servicio backend dentro de Docker. PostgreSQL guarda sedes, denuncias, contactos de Telegram y el cursor de sincronizacion.
 
 ## Backend
 
-- Código fuente: `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\java`
-- Recursos: `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\resources`
-- Pruebas: `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\test`
-- Dockerfile: `Documents\Sistema de Denuncias Universitario\Backend-SDU\Dockerfile`
-- Maven: `Documents\Sistema de Denuncias Universitario\Backend-SDU\pom.xml`
-- `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\java\edu\universidad\sdu\SduApplication.java`: arranca Spring Boot y habilita tareas programadas para consultar Telegram.
-- `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\java\edu\universidad\sdu\config`: permite `/api/public/**` y exige rol `ADMIN` en `/api/admin/**`. Usa HTTP Basic y mantiene las credenciales administrativas en memoria.
-- `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\java\edu\universidad\sdu\complaint`: contiene DTOs, controladores, entidad JPA, servicio, repositorio, estados y reglas de transición.
-- `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\java\edu\universidad\sdu\campus`: administra la información de sedes.
-- `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\java\edu\universidad\sdu\telegram`: vincula usuarios Telegram, sincroniza contactos y envía actualizaciones o mensajes personalizados.
-- `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\java\edu\universidad\sdu\common`: transforma errores de aplicación y validación en respuestas HTTP legibles.
-- Configuración: `Documents\Sistema de Denuncias Universitario\Backend-SDU\src\main\resources\application.yml`
+El backend expone endpoints publicos y administrativos:
+
+- Los endpoints publicos permiten consultar sedes, crear denuncias y consultar su estado.
+- Los endpoints administrativos requieren autenticacion HTTP Basic.
+- El panel solo permite acceso al usuario administrador configurado en las variables de entorno.
+
+Sus principales responsabilidades son:
+
+- Validar los datos recibidos.
+- Crear y consultar denuncias.
+- Asociar la denuncia con una sede.
+- Proteger el panel administrativo.
+- Controlar los cambios de estado.
+- Comunicarse con Telegram.
+- Convertir errores de la API en respuestas comprensibles.
+
+El backend usa JPA para leer y escribir la entidad de denuncias, repositorios Spring Data para PostgreSQL y transacciones para mantener coherencia entre la informacion guardada y las notificaciones.
+
+### Glosario de términos técnicos
+
+- **API (interfaz de programación):** conjunto de URLs que permite comunicar el frontend con el backend. Sus endpoints están definidos en `Backend-SDU\src\main\java\edu\universidad\sdu\complaint` y `Backend-SDU\src\main\java\edu\universidad\sdu\campus`.
+- **REST (arquitectura de servicios HTTP):** forma de organizar operaciones mediante URLs y métodos como `GET`, `POST` y `PUT`.
+- **Spring Boot (framework Java para servicios web):** ejecuta la API REST del sistema. Su configuración principal está en `Backend-SDU\src\main\resources\application.yml`.
+- **JPA (Java Persistence API):** tecnología que convierte objetos Java en registros almacenados en PostgreSQL. Las entidades JPA están en los directorios `Backend-SDU\src\main\java\edu\universidad\sdu\complaint` y `Backend-SDU\src\main\java\edu\universidad\sdu\campus`.
+- **PostgreSQL (motor de base de datos relacional):** guarda las sedes y denuncias. Su configuración y scripts se encuentran en `Database-SDU`.
+- **Angular (framework para interfaces web):** contiene las páginas, formularios, modelos y navegación. Su código está en `Frontend-SDU\src\app`.
+- **Nginx (servidor web y proxy):** sirve Angular compilado y reenvía `/api` al backend. Su configuración está en `Frontend-SDU\nginx.conf`.
+- **Docker Compose (herramienta de orquestación de contenedores):** inicia de forma coordinada la base de datos, backend y frontend. Se configura en `compose.yaml`.
+- **HTTP Basic (mecanismo de autenticación):** solicita usuario y contraseña al acceder a las rutas administrativas del backend. Su configuración está en `Backend-SDU\src\main\java\edu\universidad\sdu\config\SecurityConfig.java`.
+- **Entidad JPA:** clase Java que representa una tabla de base de datos. La denuncia principal está en `Backend-SDU\src\main\java\edu\universidad\sdu\complaint\Complaint.java`.
+- **Repositorio:** interfaz que permite consultar y guardar entidades sin escribir consultas SQL manuales. Los repositorios están junto a sus módulos, por ejemplo en `Backend-SDU\src\main\java\edu\universidad\sdu\complaint`.
 
 ## Frontend
 
-- Código fuente: `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src`
-- Código Angular: `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app`
-- Configuración Angular: `Documents\Sistema de Denuncias Universitario\Frontend-SDU\angular.json`
-- Dependencias npm: `Documents\Sistema de Denuncias Universitario\Frontend-SDU\package.json`
-- Proxy de desarrollo: `Documents\Sistema de Denuncias Universitario\Frontend-SDU\proxy.conf.json`
-- Dockerfile: `Documents\Sistema de Denuncias Universitario\Frontend-SDU\Dockerfile`
-- Servidor Nginx: `Documents\Sistema de Denuncias Universitario\Frontend-SDU\nginx.conf`
-- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app\app.routes.ts`: define carga diferida de páginas y protege la ruta `/admin` mediante `authGuard`.
-- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app\app.component.ts`: muestra la estructura, navegación y enlace de cierre de sesión.
-- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app\core`: contiene autenticación, estado HTTP, cliente REST y modelos.
-- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app\pages`: contiene formularios, inicio de sesión y panel administrativo.
-- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\assets\unisimon-logo.png`: logo local utilizado por la cabecera.
-- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\styles.css`: estilos globales basados en la identidad verde, turquesa y naranja del sitio institucional.
-- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\angular.json`: incluye `src/assets` como directorio público generado.
+Angular contiene estas areas principales:
+
+- **Inicio:** presenta el sistema y sus opciones.
+- **Denunciar:** registra el rol, sede, fecha, descripcion, usuario opcional de Telegram y evidencias.
+- **Consultar:** busca una denuncia mediante su codigo de seguimiento.
+- **Inicio administrativo:** autentica al administrador.
+- **Panel administrativo:** muestra denuncias, sedes, evidencias, estadisticas y estados.
+
+Las llamadas HTTP estan centralizadas en un servicio de Angular. Los modelos representan la informacion intercambiada con el backend. El guardia y el interceptor de autenticacion protegen las rutas administrativas y agregan las credenciales a sus solicitudes.
+
+Nginx sirve la aplicacion Angular compilada y redirige las solicitudes `/api` al backend.
 
 ## Base de datos
 
-- Módulo PostgreSQL: `Documents\Sistema de Denuncias Universitario\Database-SDU`
-- Dockerfile: `Documents\Sistema de Denuncias Universitario\Database-SDU\Dockerfile`
-- Migraciones: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations`
-- Esquema inicial: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations\V1__crear_esquema.sql`
-- Sedes iniciales: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations\V2__sedes_iniciales.sql`
-- Seguimiento y evidencias: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations\V3__seguimiento_y_evidencias.sql`
+PostgreSQL utiliza tres migraciones:
 
-## Flujo principal de una denuncia
+- `V1__crear_esquema.sql`: crea sedes, denuncias y tablas de Telegram.
+- `V2__sedes_iniciales.sql`: carga las sedes disponibles al iniciar.
+- `V3__seguimiento_y_evidencias.sql`: agrega el codigo de seguimiento, la evidencia y la restriccion de unicidad.
 
-1. Angular carga las sedes desde `/api/public/campuses`.
-2. El usuario completa el formulario; Angular valida campos básicos y llama a `/api/public/complaints`.
-3. Spring valida `ComplaintRequest`, busca la sede y crea una entidad con estado `REGISTRADA`.
-4. La denuncia se guarda en PostgreSQL y Telegram recibe una notificación si corresponde.
-5. El administrador consulta `/api/admin/complaints` y `/api/admin/stats/by-campus`.
-6. Al guardar un estado, el backend actualiza la entidad y envía opcionalmente un mensaje personalizado por Telegram.
+Las sedes cargadas actualmente son `SEDE 1`, `SEDE 2`, `POSGRADOS`, `SEDE 3`, `EUREKA`, `LA PERLA`, `ILE`, `SEDE Campestre` y `Sede Cúcuta`.
 
-## Código de seguimiento y evidencias
+La entidad principal contiene informacion de la sede, rol del denunciante, fecha, descripcion, estado, usuario de Telegram y enlaces de evidencia. Las tablas de Telegram guardan los contactos vinculados al bot y el ultimo identificador procesado.
 
-- `Complaint.java` genera un código aleatorio seguro de 10 caracteres mediante `SecureRandom` durante el persistido.
-- El código se guarda en `codigo_seguimiento` y debe ser único.
-- `ComplaintRequest.evidenceUrls` acepta enlaces opcionales separados por líneas; su longitud máxima es de 2000 caracteres.
-- `ComplaintResponse` incluye el código y las evidencias para las respuestas administrativas.
-- `TrackingResponse` expone una respuesta pública limitada: código, sede, fecha, estado y enlaces de evidencia.
-- `GET /api/public/complaints/tracking/{trackingCode}` consulta una denuncia sin requerir autenticación.
-- La página Angular `/consultar` permite introducir el código y visualizar su estado.
-- La tabla administrativa muestra el código, las evidencias y permite buscarlos junto con el resto de datos.
-- `V3__seguimiento_y_evidencias.sql` agrega las columnas, genera códigos para denuncias existentes y crea una restricción única.
+## Registro y seguimiento de denuncias
 
-## Convenciones
+Cuando una denuncia se registra:
 
-- Los controladores no contienen reglas de negocio complejas; delegan en servicios.
-- Las entidades JPA pertenecen al paquete `complaint` o `campus`.
-- Los componentes standalone contienen vista y lógica local; las llamadas HTTP se delegan al servicio API.
-- Los comentarios explican responsabilidades o decisiones de flujo, no repiten código evidente.
+1. Angular valida los campos basicos y envia la solicitud publica.
+2. Spring valida la descripcion, fecha, sede y rol.
+3. Se crea la denuncia con estado inicial `REGISTRADA`.
+4. El backend genera automaticamente un codigo alfanumerico aleatorio de 10 caracteres.
+5. PostgreSQL guarda la denuncia y su codigo.
+6. Angular muestra el codigo para que el denunciante pueda guardarlo.
+
+La consulta publica solo muestra:
+
+- Codigo de seguimiento.
+- Sede.
+- Fecha de registro.
+- Estado actual.
+- Enlaces de evidencia.
+
+No muestra datos personales ni la descripcion completa en la respuesta publica.
+
+## Evidencias
+
+El denunciante puede pegar uno o varios enlaces publicos, por ejemplo obtenidos desde LimeWire. Los enlaces son opcionales y se almacenan como texto separado por lineas, con un limite de 2000 caracteres.
+
+El panel administrativo muestra los enlaces. La consulta publica tambien los muestra sin requerir inicio de sesion.
+
+## Estados y jerarquia
+
+Los estados disponibles son:
+
+1. `REGISTRADA`
+2. `ADMITIDA`
+3. `PROCESANDO`
+4. `PROCESADA`
+5. `RECHAZADA`
+
+Las reglas principales son:
+
+- Una denuncia avanza hacia estados posteriores.
+- No puede retroceder al estado anterior.
+- Puede pasar a `RECHAZADA` desde cualquier estado que aun no sea resuelta o procesada.
+- `RECHAZADA` y `PROCESADA` son terminales.
+- Una denuncia resuelta o procesada no puede cambiar a otro estado.
+
+Estas reglas se aplican tanto en el frontend para deshabilitar opciones invalidas como en el backend para impedir cambios no permitidos directamente por API.
+
+## Telegram
+
+Telegram permite enviar notificaciones de:
+
+- Registro exitoso de una denuncia.
+- Cambio de estado.
+- Mensajes personalizados escritos por el administrador.
+
+El servicio sincroniza contactos mediante `getUpdates` y guarda el identificador del chat, nombre de usuario y nombre visible. Antes de enviar un aviso, busca el usuario normalizado en la base de datos.
+
+El usuario debe enviar un mensaje nuevo al bot para vincular o actualizar su informacion. Los mensajes editados tambien pueden procesarse durante la sincronizacion.
+
+## Configuracion por Docker
+
+El proyecto despliega tres puertos independientes:
+
+- PostgreSQL: `5432`
+- Backend: `8080`
+- Frontend por Nginx: `4200`
+
+Las credenciales y el token se toman del archivo `.env` y no deben escribirse directamente en el codigo ni incluirse en Git.
+
+Las variables principales son:
+
+- `DATABASE_PASSWORD`
+- `SDU_ADMIN_USERNAME`
+- `SDU_ADMIN_PASSWORD`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_POLL_INTERVAL`
+- `TELEGRAM_POLL_INITIAL_DELAY`
+
+## Ejecucion local
+
+Desde la raiz del proyecto se construye y inicia el sistema con Docker Compose. El frontend queda disponible en `http://localhost:4200`, el backend en `http://localhost:8080` y PostgreSQL en el puerto `5432`.
+
+El sistema funciona actualmente por HTTP. No contiene configuracion HTTPS local.

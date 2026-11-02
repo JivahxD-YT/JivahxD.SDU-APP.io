@@ -55,6 +55,20 @@ La migración [`V3__seguimiento_y_evidencias.sql`](Database-SDU/migrations/V3__s
 - Sincronización periódica de contactos desde Telegram.
 - Jerarquía que impide retrocesos y cambios desde estados terminales.
 
+## Sedes disponibles
+
+Las sedes registradas actualmente son:
+
+- SEDE 1
+- SEDE 2
+- POSGRADOS
+- SEDE 3
+- EUREKA
+- LA PERLA
+- ILE
+- SEDE Campestre
+- Sede Cúcuta
+
 ## Identidad visual
 
 La interfaz utiliza la identidad institucional de la Universidad Simón Bolívar de Barranquilla:
