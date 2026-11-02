@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
         <h1>Tu voz contribuye a un campus mejor.</h1>
         <p class="lead">Un canal confidencial y accesible para reportar situaciones que requieren atención de la universidad.</p>
         <a class="button button-primary" routerLink="/denunciar">Presentar una denuncia <span aria-hidden="true">→</span></a>
+        <a class="button button-secondary tracking-home-link" routerLink="/consultar">Consultar una denuncia</a>
       </div>
       <div class="hero-card">
         <span class="card-icon" aria-hidden="true">◎</span>

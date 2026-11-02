@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 public record ComplaintResponse(
         Long id,
+        String trackingCode,
         Long campusId,
         String campusName,
         String telegramUsername,
@@ -12,11 +13,13 @@ public record ComplaintResponse(
         LocalDate eventDate,
         Instant createdAt,
         ComplaintStatus status,
-        ReporterRole reporterRole) {
+        ReporterRole reporterRole,
+        String evidenceUrls) {
 
     public static ComplaintResponse from(Complaint complaint) {
         return new ComplaintResponse(
                 complaint.getId(),
+                complaint.getTrackingCode(),
                 complaint.getCampus() == null ? null : complaint.getCampus().getId(),
                 complaint.getCampus() == null ? null : complaint.getCampus().getName(),
                 complaint.getTelegramUsername(),
@@ -24,6 +27,7 @@ public record ComplaintResponse(
                 complaint.getEventDate(),
                 complaint.getCreatedAt(),
                 complaint.getStatus(),
-                complaint.getReporterRole());
+                complaint.getReporterRole(),
+                complaint.getEvidenceUrls());
     }
 }

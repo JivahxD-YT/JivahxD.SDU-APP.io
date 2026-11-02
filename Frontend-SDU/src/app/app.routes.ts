@@ -12,6 +12,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/report.component').then((module) => module.ReportComponent)
   },
   {
+    path: 'consultar',
+    loadComponent: () => import('./pages/tracking.component').then((module) => module.TrackingComponent)
+  },
+  {
     path: 'admin/login',
     loadComponent: () => import('./pages/login.component').then((module) => module.LoginComponent)
   },

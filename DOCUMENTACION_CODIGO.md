@@ -58,6 +58,7 @@ ComplaintService -> TelegramService -> API de Telegram
 - Migraciones: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations`
 - Esquema inicial: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations\V1__crear_esquema.sql`
 - Sedes iniciales: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations\V2__sedes_iniciales.sql`
+- Seguimiento y evidencias: `Documents\Sistema de Denuncias Universitario\Database-SDU\migrations\V3__seguimiento_y_evidencias.sql`
 
 ## Flujo principal de una denuncia
 
@@ -67,6 +68,18 @@ ComplaintService -> TelegramService -> API de Telegram
 4. La denuncia se guarda en PostgreSQL y Telegram recibe una notificación si corresponde.
 5. El administrador consulta `/api/admin/complaints` y `/api/admin/stats/by-campus`.
 6. Al guardar un estado, el backend actualiza la entidad y envía opcionalmente un mensaje personalizado por Telegram.
+
+## Código de seguimiento y evidencias
+
+- `Complaint.java` genera un código aleatorio seguro de 10 caracteres mediante `SecureRandom` durante el persistido.
+- El código se guarda en `codigo_seguimiento` y debe ser único.
+- `ComplaintRequest.evidenceUrls` acepta enlaces opcionales separados por líneas; su longitud máxima es de 2000 caracteres.
+- `ComplaintResponse` incluye el código y las evidencias para las respuestas administrativas.
+- `TrackingResponse` expone una respuesta pública limitada: código, sede, fecha, estado y enlaces de evidencia.
+- `GET /api/public/complaints/tracking/{trackingCode}` consulta una denuncia sin requerir autenticación.
+- La página Angular `/consultar` permite introducir el código y visualizar su estado.
+- La tabla administrativa muestra el código, las evidencias y permite buscarlos junto con el resto de datos.
+- `V3__seguimiento_y_evidencias.sql` agrega las columnas, genera códigos para denuncias existentes y crea una restricción única.
 
 ## Convenciones
 

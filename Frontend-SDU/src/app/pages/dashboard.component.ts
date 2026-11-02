@@ -45,13 +45,21 @@ import {
         </div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>ID / Fecha</th><th>Sede / Rol</th><th>Descripción</th><th>Telegram</th><th>Estado</th><th>Acción</th></tr></thead>
+            <thead><tr><th>ID / Código</th><th>Fecha</th><th>Sede / Rol</th><th>Descripción</th><th>Evidencias</th><th>Telegram</th><th>Estado</th><th>Acción</th></tr></thead>
             <tbody>
               @for (complaint of filteredComplaints(); track complaint.id) {
                 <tr>
-                  <td><strong>#{{ complaint.id }}</strong><small>{{ complaint.createdAt | date:'dd/MM/yyyy' }}</small></td>
+                  <td><strong>#{{ complaint.id }}</strong><small>{{ complaint.trackingCode }}</small></td>
+                  <td>{{ complaint.createdAt | date:'dd/MM/yyyy' }}</td>
                   <td>{{ complaint.campusName || 'Sin sede' }}<small>{{ complaint.reporterRole }}</small></td>
                   <td class="description-cell">{{ complaint.description }}</td>
+                  <td class="evidence-cell">
+                    @if (complaint.evidenceUrls) {
+                      @for (url of complaint.evidenceUrls.split('\n'); track url) {
+                        <a [href]="url.trim()" target="_blank" rel="noopener noreferrer">{{ url.trim() }}</a>
+                      }
+                    } @else { <span>—</span> }
+                  </td>
                   <td>{{ complaint.telegramUsername || '—' }}</td>
                   <td>
                     <select [attr.aria-label]="'Estado de denuncia ' + complaint.id" [ngModel]="statusFor(complaint)" (ngModelChange)="setStatus(complaint.id, $event)">
@@ -68,7 +76,7 @@ import {
                   </button></td>
                 </tr>
               } @empty {
-                <tr><td colspan="6" class="empty-state">No hay denuncias que coincidan con la búsqueda.</td></tr>
+                <tr><td colspan="8" class="empty-state">No hay denuncias que coincidan con la búsqueda.</td></tr>
               }
             </tbody>
           </table>
@@ -127,7 +135,7 @@ export class DashboardComponent implements OnInit {
     const term = this.search.trim().toLocaleLowerCase();
     if (!term) return this.complaints();
     return this.complaints().filter((complaint) =>
-      `${complaint.id} ${complaint.campusName ?? ''} ${complaint.description} ${complaint.status} ${complaint.reporterRole}`
+      `${complaint.id} ${complaint.trackingCode} ${complaint.campusName ?? ''} ${complaint.description} ${complaint.status} ${complaint.reporterRole} ${complaint.evidenceUrls ?? ''}`
         .toLocaleLowerCase().includes(term)
     );
   }

@@ -15,6 +15,7 @@ import { AuthService } from './core/auth.service';
       <nav aria-label="Navegación principal">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
         <a routerLink="/denunciar" routerLinkActive="active">Presentar denuncia</a>
+        <a routerLink="/consultar" routerLinkActive="active">Consultar estado</a>
         @if (auth.authenticated()) {
           <a routerLink="/admin" routerLinkActive="active">Administración</a>
           <button class="nav-logout" type="button" (click)="logout()">Salir</button>

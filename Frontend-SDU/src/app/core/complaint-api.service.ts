@@ -8,6 +8,7 @@ import {
   ComplaintRequest,
   ComplaintStatus,
   Page,
+  TrackingComplaint,
   StatusUpdateRequest
 } from './models';
 
@@ -22,6 +23,12 @@ export class ComplaintApiService {
 
   createComplaint(complaint: ComplaintRequest): Observable<Complaint> {
     return this.http.post<Complaint>('/api/public/complaints', complaint);
+  }
+
+  trackComplaint(trackingCode: string): Observable<TrackingComplaint> {
+    return this.http.get<TrackingComplaint>(
+      `/api/public/complaints/tracking/${encodeURIComponent(trackingCode.trim().toUpperCase())}`
+    );
   }
 
   getComplaints(page = 0): Observable<Page<Complaint>> {

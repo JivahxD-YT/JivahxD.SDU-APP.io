@@ -33,8 +33,11 @@ public class ComplaintService {
                 .orElseThrow(() -> new IllegalArgumentException("La sede seleccionada no existe."));
         String username = request.telegramUsername() == null || request.telegramUsername().isBlank()
                 ? null : request.telegramUsername().trim();
+        String evidenceUrls = request.evidenceUrls() == null || request.evidenceUrls().isBlank()
+                ? null : request.evidenceUrls().trim();
         Complaint complaint = complaintRepository.save(new Complaint(
-                campus, username, request.description().trim(), request.eventDate(), request.reporterRole()));
+                campus, username, request.description().trim(), request.eventDate(), request.reporterRole(),
+                evidenceUrls));
         telegramService.notifyComplaintCreated(complaint);
         return ComplaintResponse.from(complaint);
     }
@@ -42,6 +45,17 @@ public class ComplaintService {
     @Transactional(readOnly = true)
     public Page<ComplaintResponse> findAll(Pageable pageable) {
         return complaintRepository.findAllByOrderByCreatedAtDesc(pageable).map(ComplaintResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public TrackingResponse findByTrackingCode(String trackingCode) {
+        if (trackingCode == null || trackingCode.isBlank()) {
+            throw new IllegalArgumentException("El código de seguimiento es obligatorio.");
+        }
+        Complaint complaint = complaintRepository.findWithCampusByTrackingCode(
+                        trackingCode.trim().toUpperCase())
+                .orElseThrow(() -> new ComplaintNotFoundException("Código de seguimiento no encontrado."));
+        return TrackingResponse.from(complaint);
     }
 
     @Transactional

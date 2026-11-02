@@ -12,5 +12,6 @@ public record ComplaintRequest(
         @Size(max = 100) String telegramUsername,
         @NotBlank @Size(max = 500) String description,
         @NotNull @PastOrPresent LocalDate eventDate,
-        @NotNull ReporterRole reporterRole) {
+        @NotNull ReporterRole reporterRole,
+        @Size(max = 2000) String evidenceUrls) {
 }

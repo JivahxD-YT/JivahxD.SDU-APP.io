@@ -29,9 +29,26 @@ El proyecto está separado en tres módulos independientes:
 | `Backend-SDU` | Spring Boot 4.1.2 / Java 25 | `8080` |
 | `Frontend-SDU` | Angular 22 / Nginx | `4200` |
 
+## Código de seguimiento y evidencias
+
+Al registrar una denuncia, el sistema genera un código único de 10 caracteres sin letras o números ambiguos. El denunciante puede consultarlo desde `/consultar` sin iniciar sesión ni compartir su identidad.
+
+El formulario ofrece un campo opcional para pegar uno o varios enlaces de evidencia. Los enlaces pueden generarse mediante [LimeWire](https://limewire.com/):
+
+- El campo no es obligatorio.
+- Varias URL pueden separarse por una línea.
+- El denunciante conserva el control sobre los archivos alojados externamente.
+- Los enlaces aparecen en el panel administrativo.
+- La consulta pública devuelve el estado, la sede, la fecha y las evidencias, pero no datos personales ni la descripción completa.
+
+La migración [`V3__seguimiento_y_evidencias.sql`](Database-SDU/migrations/V3__seguimiento_y_evidencias.sql) agrega las columnas de código y evidencias a denuncias existentes.
+
 ## Funcionalidades
 
 - Registro público de denuncias por sede y rol.
+- Generación de un código único alfanumérico para consultar el estado.
+- Consulta pública del estado mediante el código de seguimiento.
+- Envío opcional de enlaces a imágenes o videos almacenados en LimeWire.
 - Consulta administrativa protegida con HTTP Basic.
 - Búsqueda, paginación y estadísticas por sede.
 - Mensajes personalizados y avisos automáticos por Telegram.

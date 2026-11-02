@@ -3,7 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ComplaintApiService } from '../core/complaint-api.service';
-import { Campus, REPORTER_ROLES, ReporterRole } from '../core/models';
+import { Campus, Complaint, REPORTER_ROLES, ReporterRole } from '../core/models';
 
 @Component({
   standalone: true,
@@ -19,6 +19,8 @@ import { Campus, REPORTER_ROLES, ReporterRole } from '../core/models';
       @if (success()) {
         <div class="alert alert-success" role="status">
           <strong>Denuncia registrada.</strong> Tu reporte se recibió correctamente.
+          <p class="tracking-result">Código de seguimiento: <strong>{{ createdComplaint()?.trackingCode }}</strong></p>
+          <small>Guarda este código para consultar el estado sin iniciar sesión.</small>
           @if (telegramUsername.trim()) { Si tu usuario de Telegram está vinculado al bot, recibirás las actualizaciones de estado. }
           @else { Puedes presentar otra denuncia e indicar tu usuario de Telegram para recibir actualizaciones. }
         </div>
@@ -55,6 +57,16 @@ import { Campus, REPORTER_ROLES, ReporterRole } from '../core/models';
             <input name="telegramUsername" [(ngModel)]="telegramUsername" maxlength="100" placeholder="@usuario">
             <small class="field-hint">Primero envía /start al <a href="https://t.me/denuncia_requestUSB_bot" target="_blank" rel="noopener noreferrer">&#64;denuncia_requestUSB_bot</a> para habilitar notificaciones.</small>
           </label>
+          <label>
+            Fotos o videos de la evidencia <span class="optional">(opcional)</span>
+            <textarea name="evidenceUrls" [(ngModel)]="evidenceUrls" rows="3" maxlength="2000"
+              placeholder="https://limewire.com/..."></textarea>
+            <small class="field-hint">
+              Puedes subir archivos de forma privada en
+              <a href="https://limewire.com/" target="_blank" rel="noopener noreferrer">LimeWire</a>
+              y pegar aquí uno o varios enlaces públicos. Separa varios enlaces por una línea.
+            </small>
+          </label>
           <div class="form-actions">
             <button class="button button-primary" type="submit" [disabled]="reportForm.invalid || submitting() || campuses().length === 0">
               {{ submitting() ? 'Enviando…' : 'Enviar denuncia' }}
@@ -75,11 +87,13 @@ export class ReportComponent implements OnInit {
   readonly success = signal(false);
   readonly error = signal('');
   readonly campusError = signal('');
+  readonly createdComplaint = signal<Complaint | null>(null);
   reporterRole: ReporterRole | '' = '';
   campusId: number | null = null;
   eventDate = this.today;
   description = '';
   telegramUsername = '';
+  evidenceUrls = '';
 
   private localDateToday(): string {
     const date = new Date();
@@ -103,9 +117,11 @@ export class ReportComponent implements OnInit {
       reporterRole: this.reporterRole,
       eventDate: this.eventDate,
       description: this.description.trim(),
-      telegramUsername: this.telegramUsername.trim() || null
+      telegramUsername: this.telegramUsername.trim() || null,
+      evidenceUrls: this.evidenceUrls.trim() || null
     }).subscribe({
-      next: () => {
+      next: (complaint) => {
+        this.createdComplaint.set(complaint);
         this.success.set(true);
         this.submitting.set(false);
       },

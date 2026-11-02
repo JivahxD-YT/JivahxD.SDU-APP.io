@@ -25,6 +25,13 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
             """)
     java.util.Optional<Complaint> findWithCampusById(@Param("id") Long id);
 
+    @Query("""
+            select d from Complaint d left join fetch d.campus
+            where upper(d.trackingCode) = upper(:trackingCode)
+            """)
+    java.util.Optional<Complaint> findWithCampusByTrackingCode(
+            @Param("trackingCode") String trackingCode);
+
     interface CampusCount {
         String getCampusName();
 

@@ -6,6 +6,7 @@ export interface Campus {
 
 export interface Complaint {
   id: number;
+  trackingCode: string;
   campusId: number | null;
   campusName: string | null;
   telegramUsername: string | null;
@@ -14,6 +15,7 @@ export interface Complaint {
   createdAt: string;
   status: ComplaintStatus;
   reporterRole: ReporterRole;
+  evidenceUrls: string | null;
 }
 
 export interface ComplaintRequest {
@@ -22,6 +24,15 @@ export interface ComplaintRequest {
   description: string;
   eventDate: string;
   reporterRole: ReporterRole;
+  evidenceUrls: string | null;
+}
+
+export interface TrackingComplaint {
+  trackingCode: string;
+  campusName: string | null;
+  createdAt: string;
+  status: ComplaintStatus;
+  evidenceUrls: string | null;
 }
 
 export interface StatusUpdateRequest {

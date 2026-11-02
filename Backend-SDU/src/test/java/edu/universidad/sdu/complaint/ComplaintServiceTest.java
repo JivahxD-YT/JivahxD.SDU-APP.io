@@ -45,7 +45,8 @@ class ComplaintServiceTest {
         when(complaintRepository.save(any(Complaint.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         ComplaintRequest request = new ComplaintRequest(
-                1L, "@user", "Descripción del hecho", LocalDate.now(), ReporterRole.ESTUDIANTE);
+                1L, "@user", "Descripción del hecho", LocalDate.now(), ReporterRole.ESTUDIANTE,
+                "https://limewire.com/example");
 
         ComplaintResponse response = service.create(request);
 
@@ -58,7 +59,7 @@ class ComplaintServiceTest {
     @Test
     void changesStatusAndSendsNotification() {
         Complaint complaint = new Complaint(campus, "@user", "Descripción", LocalDate.now(),
-                ReporterRole.ESTUDIANTE);
+                ReporterRole.ESTUDIANTE, null);
         when(complaintRepository.findWithCampusById(12L)).thenReturn(Optional.of(complaint));
         when(complaintRepository.save(complaint)).thenReturn(complaint);
 
@@ -72,7 +73,7 @@ class ComplaintServiceTest {
     void rejectsUnknownCampus() {
         when(campusRepository.findById(99L)).thenReturn(Optional.empty());
         ComplaintRequest request = new ComplaintRequest(
-                99L, null, "Descripción del hecho", LocalDate.now(), ReporterRole.EXTERNO);
+                99L, null, "Descripción del hecho", LocalDate.now(), ReporterRole.EXTERNO, null);
 
         assertThrows(IllegalArgumentException.class, () -> service.create(request));
     }
@@ -80,7 +81,7 @@ class ComplaintServiceTest {
     @Test
     void rejectsRejectedStatusRollback() {
         Complaint complaint = new Complaint(campus, "@user", "Descripción", LocalDate.now(),
-                ReporterRole.ESTUDIANTE);
+                ReporterRole.ESTUDIANTE, null);
         complaint.updateStatus(ComplaintStatus.RECHAZADA);
         when(complaintRepository.findWithCampusById(12L)).thenReturn(Optional.of(complaint));
 
@@ -91,7 +92,7 @@ class ComplaintServiceTest {
     @Test
     void preventsResolvedComplaintStatusChanges() {
         Complaint complaint = new Complaint(campus, "@user", "Descripción", LocalDate.now(),
-                ReporterRole.ESTUDIANTE);
+                ReporterRole.ESTUDIANTE, null);
         complaint.updateStatus(ComplaintStatus.PROCESADA);
         when(complaintRepository.findWithCampusById(12L)).thenReturn(Optional.of(complaint));
 
@@ -102,7 +103,7 @@ class ComplaintServiceTest {
     @Test
     void allowsRejectionFromActiveStatus() {
         Complaint complaint = new Complaint(campus, "@user", "Descripción", LocalDate.now(),
-                ReporterRole.ESTUDIANTE);
+                ReporterRole.ESTUDIANTE, null);
         complaint.updateStatus(ComplaintStatus.PROCESANDO);
         when(complaintRepository.findWithCampusById(12L)).thenReturn(Optional.of(complaint));
         when(complaintRepository.save(complaint)).thenReturn(complaint);
