@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "app.admin.username",
+      "type": "java.lang.String",
+      "description": "Nombre de usuario administrativo."
+    },
+    {
+      "name": "app.admin.password",
+      "type": "java.lang.String",
+      "description": "Contraseña administrativa."
+    },
+    {
+      "name": "app.telegram.bot-token",
+      "type": "java.lang.String",
+      "description": "Token del bot de Telegram."
+    },
+    {
+      "name": "app.telegram.poll-interval",
+      "type": "java.lang.Long",
+      "description": "Intervalo de consulta de Telegram en milisegundos."
+    }
+  ]
+}
