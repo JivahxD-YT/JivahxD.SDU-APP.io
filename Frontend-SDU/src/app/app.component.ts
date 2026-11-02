@@ -7,9 +7,13 @@ import { AuthService } from './core/auth.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
   template: `
+    <div class="institution-bar">
+      <a href="https://unisimon.edu.co/" target="_blank" rel="noopener noreferrer">Sitio institucional</a>
+      <span>Barranquilla · Colombia</span>
+    </div>
     <header class="site-header">
       <a class="brand" routerLink="/">
-        <span class="brand-mark" aria-hidden="true">S</span>
+        <img class="brand-logo" src="/assets/unisimon-logo.png" alt="Universidad Simón Bolívar">
         <span>Sistema de Denuncias <small>UNIVERSITARIO</small></span>
       </a>
       <nav aria-label="Navegación principal">
@@ -27,7 +31,10 @@ import { AuthService } from './core/auth.service';
     <main>
       <router-outlet />
     </main>
-    <footer>Un canal confidencial para fortalecer una comunidad universitaria segura y transparente.</footer>
+    <footer>
+      <strong>Universidad Simón Bolívar</strong>
+      <span>Canal confidencial para fortalecer una comunidad universitaria segura y transparente.</span>
+    </footer>
   `
 })
 /** Componente raíz: presenta navegación global y mantiene visible el estado de sesión. */

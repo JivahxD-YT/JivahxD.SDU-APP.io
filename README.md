@@ -55,6 +55,15 @@ La migración [`V3__seguimiento_y_evidencias.sql`](Database-SDU/migrations/V3__s
 - Sincronización periódica de contactos desde Telegram.
 - Jerarquía que impide retrocesos y cambios desde estados terminales.
 
+## Identidad visual
+
+La interfaz utiliza la identidad institucional de la Universidad Simón Bolívar de Barranquilla:
+
+- Verde principal `#05A64A` y verde oscuro `#05803B`.
+- Acentos turquesa `#00BABF`, azul `#29A0D7` y naranja `#FF8000`.
+- Logo local de la universidad.
+- Cabecera institucional, navegación clara, botones verdes y contenido sobre fondos claros.
+
 ## Estados de una denuncia
 
 ```text
@@ -117,6 +126,7 @@ docker compose up -d --build
 
 > [!IMPORTANT]
 > No publiques `.env`, tokens, contraseñas ni credenciales en GitHub.
+
 
 ## Desarrollo local
 

@@ -50,6 +50,9 @@ ComplaintService -> TelegramService -> API de Telegram
 - `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app\app.component.ts`: muestra la estructura, navegación y enlace de cierre de sesión.
 - `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app\core`: contiene autenticación, estado HTTP, cliente REST y modelos.
 - `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\app\pages`: contiene formularios, inicio de sesión y panel administrativo.
+- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\assets\unisimon-logo.png`: logo local utilizado por la cabecera.
+- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\src\styles.css`: estilos globales basados en la identidad verde, turquesa y naranja del sitio institucional.
+- `Documents\Sistema de Denuncias Universitario\Frontend-SDU\angular.json`: incluye `src/assets` como directorio público generado.
 
 ## Base de datos
 
