@@ -124,6 +124,18 @@ SDU_ADMIN_PASSWORD=clave-segura-del-administrador
 TELEGRAM_BOT_TOKEN=
 ```
 
+Para el despliegue público, también configura en Render:
+
+```dotenv
+DATABASE_URL=jdbc:postgresql://HOST_INTERNO:5432/NOMBRE_BASE
+DATABASE_USERNAME=USUARIO_POSTGRESQL
+DATABASE_PASSWORD=CONTRASEÑA_POSTGRESQL
+APP_CORS_ALLOWED_ORIGINS=https://jivahxd-yt.github.io
+```
+
+El frontend de desarrollo usa `/api` y el build de producción usa la URL HTTPS configurada en
+`Frontend-SDU/src/environments/environment.prod.ts`.
+
 2. Construye y inicia los tres servicios:
 
 ```powershell

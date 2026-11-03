@@ -171,6 +171,7 @@ Las variables principales son:
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_POLL_INTERVAL`
 - `TELEGRAM_POLL_INITIAL_DELAY`
+- `APP_CORS_ALLOWED_ORIGINS`
 
 ## Ejecucion local
 

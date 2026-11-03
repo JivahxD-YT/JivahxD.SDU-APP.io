@@ -3,7 +3,7 @@ import { getAuthorization } from './auth-state';
 
 export const basicAuthInterceptor: HttpInterceptorFn = (request, next) => {
   const authorization = getAuthorization();
-  if (!authorization || !request.url.startsWith('/api/admin/')) {
+  if (!authorization || !request.url.includes('/api/admin/')) {
     return next(request);
   }
 
