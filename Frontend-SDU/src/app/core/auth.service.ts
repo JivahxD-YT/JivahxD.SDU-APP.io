@@ -2,17 +2,19 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { clearAuthorization, createAuthorizationHeader, setAuthorization } from './auth-state';
+import { environment } from '../../environments/environment';
 
 /** Gestiona inicio/cierre de sesión y verifica las credenciales básicas del panel administrativo. */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   readonly authenticated = signal(false);
+  private readonly authCheckUrl = `${environment.apiUrl}/api/admin/auth/check`;
 
   constructor(private readonly http: HttpClient) {}
 
   login(username: string, password: string): Observable<void> {
     const authorization = createAuthorizationHeader(username, password);
-    return this.http.get<void>('/api/admin/auth/check', {
+    return this.http.get<void>(this.authCheckUrl, {
       headers: new HttpHeaders({ Authorization: authorization })
     }).pipe(
       tap(() => {
@@ -23,7 +25,7 @@ export class AuthService {
   }
 
   check(): Observable<boolean> {
-    return this.http.get<void>('/api/admin/auth/check').pipe(
+    return this.http.get<void>(this.authCheckUrl).pipe(
       map(() => {
         this.authenticated.set(true);
         return true;
