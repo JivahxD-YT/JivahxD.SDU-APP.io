@@ -1,0 +1,62 @@
+name: Deploy Angular to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Frontend-SDU/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: Frontend-SDU
+        run: npm ci
+
+      - name: Compilar Angular
+        working-directory: Frontend-SDU
+        run: npm run build -- --base-href /JivahxD.SDU-APP.io/
+
+      - name: Preparar fallback de Angular
+        run: cp Frontend-SDU/dist/sdu-frontend/browser/index.html Frontend-SDU/dist/sdu-frontend/browser/404.html
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir sitio generado
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: Frontend-SDU/dist/sdu-frontend/browser
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
