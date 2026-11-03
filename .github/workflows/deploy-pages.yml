@@ -36,7 +36,7 @@ jobs:
 
       - name: Compilar Angular
         working-directory: Frontend-SDU
-        run: npm run build -- --base-href /JivahxD.SDU-APP.io/
+        run: npm run build -- --base-href /SDU/
 
       - name: Crear página de respaldo para Angular
         run: cp Frontend-SDU/dist/sdu-frontend/browser/index.html Frontend-SDU/dist/sdu-frontend/browser/404.html
