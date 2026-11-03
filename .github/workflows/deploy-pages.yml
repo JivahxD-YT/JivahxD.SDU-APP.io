@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Obtener código
+      - name: Descargar el repositorio
         uses: actions/checkout@v4
 
       - name: Configurar Node.js
@@ -38,13 +38,13 @@ jobs:
         working-directory: Frontend-SDU
         run: npm run build -- --base-href /JivahxD.SDU-APP.io/
 
-      - name: Preparar fallback de Angular
+      - name: Crear página de respaldo para Angular
         run: cp Frontend-SDU/dist/sdu-frontend/browser/index.html Frontend-SDU/dist/sdu-frontend/browser/404.html
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Subir sitio generado
+      - name: Subir archivos compilados
         uses: actions/upload-pages-artifact@v3
         with:
           path: Frontend-SDU/dist/sdu-frontend/browser
@@ -57,6 +57,6 @@ jobs:
     needs: build
 
     steps:
-      - name: Publicar en GitHub Pages
+      - name: Publicar sitio
         id: deployment
         uses: actions/deploy-pages@v4
